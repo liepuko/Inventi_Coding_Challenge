@@ -24,6 +24,9 @@ public class StatementRoutes {
         // POST /api/import?filePath=path/to/file.csv
         app.post("/api/import", ctx -> {
             var filePath = ctx.queryParam("filePath");
+            if (filePath == null || filePath.isBlank()) {
+                throw new IllegalArgumentException("filePath is required");
+            }
             var transactions = service.importData(filePath);
             ctx.json(transactions);
         });
@@ -31,6 +34,9 @@ public class StatementRoutes {
         // GET /api/calculate?accountNr=...&dateFrom=...&dateTo=...
         app.get("/api/calculate", ctx -> {
             var accountNr = ctx.queryParam("accountNr");
+            if (accountNr == null || accountNr.isBlank()) {
+                throw new IllegalArgumentException("accountNr is required");
+            }
             var dateFrom = ctx.queryParam("dateFrom") != null ? LocalDateTime.parse(ctx.queryParam("dateFrom"), FORMATTER)  : null;
             var dateTo = ctx.queryParam("dateTo") != null ? LocalDateTime.parse(ctx.queryParam("dateTo"), FORMATTER)    : null;
             var transactions = service.importData(ctx.queryParam("filePath"));

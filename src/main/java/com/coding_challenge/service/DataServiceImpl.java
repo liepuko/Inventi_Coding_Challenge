@@ -7,6 +7,8 @@ import com.coding_challenge.io.FileImporter;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public class DataServiceImpl implements DataService {
@@ -17,6 +19,10 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public List<BankRecord> importData(String filePath) throws Exception {
+        var file = new File(filePath);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File not found: " + filePath);
+        }
         return importer.readCsv(new FileInputStream(filePath));
     }
 

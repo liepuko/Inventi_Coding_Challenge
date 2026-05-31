@@ -6,6 +6,12 @@ import java.util.List;
 
 public class BalanceCalc {
     public double calculate (List<BankRecord> transactions, String accountNr, LocalDateTime dateFrom, LocalDateTime dateTo){
+         if (transactions == null) {
+            throw new IllegalArgumentException("Transactions list cannot be null");
+        }
+        if (accountNr == null || accountNr.isBlank()) {
+            throw new IllegalArgumentException("Account number cannot be blank");
+        }
         var from = dateFrom != null ? dateFrom : LocalDateTime.MIN;
         var to   = dateTo   != null ? dateTo   : LocalDateTime.MAX;
 
