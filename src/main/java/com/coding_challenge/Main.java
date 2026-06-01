@@ -8,7 +8,12 @@ import io.javalin.Javalin;
 public class Main {
 
     public static void main(String[] args) {
-        var app = Javalin.create().start(7000);
+        var app = Javalin.create(config -> {
+            config.bundledPlugins.enableCors(cors -> cors.addRule(it ->{
+                it.anyHost();
+                it.exposeHeader("Content-Disposition");
+            } ));
+        }).start(7000);
 
         //exception handling
     

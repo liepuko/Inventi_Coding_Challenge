@@ -7,6 +7,8 @@ import io.javalin.Javalin;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.time.format.DateTimeFormatter;
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 public class StatementRoutes {
 
@@ -21,13 +23,16 @@ public class StatementRoutes {
 
     public void register(Javalin app) {
 
-        // POST /api/import?filePath=path/to/file.csv
+        // POST /api/import
         app.post("/api/import", ctx -> {
-            var filePath = ctx.queryParam("filePath");
-            if (filePath == null || filePath.isBlank()) {
-                throw new IllegalArgumentException("filePath is required");
+            var file = ctx.uploadedFile("file");
+            if (file == null) {
+                throw new IllegalArgumentException("file is required");
             }
-            var transactions = service.importData(filePath);
+            if (!file.filename().endsWith(".csv")) {
+                throw new IllegalArgumentException("Only CSV files are supported");
+            }
+            var transactions = service.importData(file.content());
             ctx.json(transactions);
         });
 
@@ -37,20 +42,30 @@ public class StatementRoutes {
             if (accountNr == null || accountNr.isBlank()) {
                 throw new IllegalArgumentException("accountNr is required");
             }
-            var dateFrom = ctx.queryParam("dateFrom") != null ? LocalDateTime.parse(ctx.queryParam("dateFrom"), FORMATTER)  : null;
-            var dateTo = ctx.queryParam("dateTo") != null ? LocalDateTime.parse(ctx.queryParam("dateTo"), FORMATTER)    : null;
-            var transactions = service.importData(ctx.queryParam("filePath"));
-            var balance = service.calculateBalance(transactions, accountNr, dateFrom, dateTo);
+            var dateFrom = ctx.queryParam("dateFrom") != null && 
+            !ctx.queryParam("dateFrom").isBlank() ? LocalDateTime.parse(ctx.queryParam("dateFrom"), FORMATTER) : null;
+
+            var dateTo = ctx.queryParam("dateTo") != null &&
+             !ctx.queryParam("dateTo").isBlank() ? LocalDateTime.parse(ctx.queryParam("dateTo"), FORMATTER) : null;
+            
+            var balance = service.calculateBalance(accountNr, dateFrom, dateTo);
             ctx.json(balance);
         });
 
-        // GET /api/export?dateFrom=...&dateTo=...
-        app.get("/api/export", ctx -> {
-            var dateFrom = ctx.queryParam("dateFrom") != null ? LocalDateTime.parse(ctx.queryParam("dateFrom"), FORMATTER) : null;
-            var dateTo = ctx.queryParam("dateTo") != null ? LocalDateTime.parse(ctx.queryParam("dateTo"), FORMATTER)   : null;
-            var transactions = service.importData(ctx.queryParam("filePath"));
-            service.exportData(transactions, dateFrom, dateTo);
-            ctx.result("Export successful");
+        // POST /api/export
+        app.post("/api/export", ctx -> {
+            var dateFrom = ctx.queryParam("dateFrom") != null &&
+            !ctx.queryParam("dateTo").isBlank()
+            ? LocalDateTime.parse(ctx.queryParam("dateFrom"), FORMATTER) : null;
+
+            var dateTo = ctx.queryParam("dateTo") != null &&
+            !ctx.queryParam("dateTo").isBlank() ? LocalDateTime.parse(ctx.queryParam("dateTo"), FORMATTER)   : null;
+
+            var path = service.exportData(dateFrom, dateTo);
+
+            ctx.contentType("text/csv")
+                .header("Content-Disposition", "attachment; filename=" + path.getFileName())
+                .result(Files.readAllBytes(path));
         });
     }
 }

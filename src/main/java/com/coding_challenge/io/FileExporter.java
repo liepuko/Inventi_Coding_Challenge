@@ -9,12 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.nio.file.Files;
 
 public class FileExporter{
 
     private static final String OUTPUT_DIR = "exports";
 
-     public void writeCsv(List<BankRecord> transactions,  LocalDateTime dateFrom, LocalDateTime dateTo) throws Exception {
+     public Path writeCsv(List<BankRecord> transactions,  LocalDateTime dateFrom, LocalDateTime dateTo) throws Exception {
 
         Files.createDirectories(Path.of(OUTPUT_DIR)); //creates a folder for exports if it does not exist
 
@@ -43,6 +44,7 @@ public class FileExporter{
                 writer.newLine();
             }
         }
+        return filePath;
     }
 
 }
