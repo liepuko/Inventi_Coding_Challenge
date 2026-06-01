@@ -5,6 +5,8 @@ import TransactionsTable from './components/TransactionsTable'
 import ExportModal from './components/ExportPopUp'
 import ErrorBanner from './components/ErrorBanner'
 
+// Frontend structure and modal pattern developed with Claude
+
 function App() {
   const [transactions, setTransactions] = useState([])
   const [error, setError] = useState(null)
@@ -78,9 +80,7 @@ function App() {
       if (exportDateFrom) params.append('dateFrom', exportDateFrom.replace('T', ' ') + ':00')
       if (exportDateTo)   params.append('dateTo',   exportDateTo.replace('T', ' ') + ':00')
 
-      const response = await fetch(`http://localhost:7000/api/export?${params}`, {
-        method: 'POST'
-      })
+      const response = await fetch(`http://localhost:7000/api/export?${params}`)
       if (!response.ok) {
         const msg = await response.text()
         setError(msg)

@@ -11,27 +11,31 @@ import java.time.format.DateTimeFormatter;
 import com.coding_challenge.exceptions.InvalidCsvFormatException;
 import java.time.format.DateTimeParseException;
 
+// CSV parsing structure and date format handling developed with Claude
 public class FileImporter{
 
      public List<BankRecord> readCsv(InputStream inputStream) throws Exception {
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             return reader.lines()
                     .skip(1) // skip header row
-                    .filter(line -> !line.isBlank())
-                    .map(this::toBankRecord)
+                    .filter(line -> !line.isBlank()) //empty lines not parsed as transactions
+                    .map(this::toBankRecord) //converts row into BankRecord obj
                     .toList();
         }
     }
 
+    // formates dates and allows optional seconds
     private static final DateTimeFormatter FORMATTER = 
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm[:ss]");
 
     private BankRecord toBankRecord(String line) {
-        var cols = line.split(",");
+        var cols = line.split(",", -1); //exprects comma separated csv, without quoted data
 
+        //checks if row has correct columns
         if(cols.length < 6){
             throw new InvalidCsvFormatException("Invalid row in the file, expected 6 comma-separated columns but there are"+ cols.length + ": " + line);
         }
+        // validates required fields
         if (cols[0].strip().isBlank()) {
             throw new InvalidCsvFormatException("account number is empty in row: " + line);
         }
@@ -47,6 +51,7 @@ public class FileImporter{
 
      
         try{ 
+            // Convert the validated CSV columns into a BankRecord
             return new BankRecord(
             cols[0].strip(), // accountNr
             LocalDateTime.parse(cols[1].strip(), FORMATTER), // date

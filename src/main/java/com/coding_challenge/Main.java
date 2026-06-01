@@ -9,13 +9,14 @@ public class Main {
 
     public static void main(String[] args) {
         var app = Javalin.create(config -> {
+            // Allows the React frontend to call this backend
             config.bundledPlugins.enableCors(cors -> cors.addRule(it ->{
                 it.anyHost();
-                it.exposeHeader("Content-Disposition");
+                it.exposeHeader("Content-Disposition"); // for frontend to read the exported CSV filename
             } ));
         }).start(7000);
 
-        //exception handling
+        //exception handling (suggested by claude)
     
         app.exception(IllegalArgumentException.class, (e, ctx) -> {
             ctx.status(400).result("Bad request: " + e.getMessage());
@@ -38,6 +39,8 @@ public class Main {
         });
 
         var service = new DataServiceImpl();
+
+        // Register all statement-related API routes
         new StatementRoutes(service).register(app);
     }
 }
