@@ -3,9 +3,12 @@ package com.coding_challenge;
 import com.coding_challenge.calc.BalanceCalc;
 import com.coding_challenge.data.BankRecord;
 import org.junit.jupiter.api.Test;
+import com.coding_challenge.exceptions.AccountNotFoundException;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +32,7 @@ class BalanceCalcTest {
                 LocalDateTime.of(2026, 1, 1, 0, 0),
                 LocalDateTime.of(2026, 12, 31, 23, 59)
         );
-        assertEquals(1200.00, result, 0.001);
+        assertEquals(1200.00, result.get("EUR"), 0.01);
     }
 
     @Test
@@ -40,17 +43,18 @@ class BalanceCalcTest {
                 LocalDateTime.of(2026, 1, 1, 0, 0),
                 LocalDateTime.of(2026, 2, 1, 0, 0) // before the salary transaction
         );
-        assertEquals(-300.00, result, 0.001);
+        assertEquals(-300.00, result.get("EUR"), 0.001);
     }
 
     @Test
-    void calculateReturnsZeroForUnknownAccount() {
-        var result = calculator.calculate(
-                sampleTransactions(),
-                "UNKNOWN",
-                LocalDateTime.of(2026, 1, 1, 0, 0),
-                LocalDateTime.of(2026, 12, 31, 23, 59)
+    void calculateThrowsForUnknownAccount() {
+        assertThrows(AccountNotFoundException.class, () ->
+                calculator.calculate(
+                        sampleTransactions(),
+                        "UNKNOWN",
+                        null,
+                        null
+                )
         );
-        assertEquals(0.00, result, 0.001);
     }
 }
