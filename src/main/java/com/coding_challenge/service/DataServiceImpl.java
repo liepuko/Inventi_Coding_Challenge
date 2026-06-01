@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Map;
 
 
 public class DataServiceImpl implements DataService {
@@ -29,7 +30,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public double calculateBalance(String accountNr, LocalDateTime dateFrom, LocalDateTime dateTo) {
+    public Map<String, Double> calculateBalance(String accountNr, LocalDateTime dateFrom, LocalDateTime dateTo) {
          if (storedTransactions.isEmpty()) {
             throw new IllegalArgumentException("No transactions imported yet");
         }

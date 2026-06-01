@@ -134,3 +134,8 @@ label {
   cursor: pointer;
   padding: 0 4px;
 }
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

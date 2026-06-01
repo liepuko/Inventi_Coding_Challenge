@@ -3,6 +3,8 @@ package com.coding_challenge;
 import com.coding_challenge.routes.StatementRoutes;
 import com.coding_challenge.service.DataServiceImpl;
 import com.coding_challenge.exceptions.InvalidCsvFormatException;
+import com.coding_challenge.exceptions.AccountNotFoundException;
+
 import io.javalin.Javalin;
 
 public class Main {
@@ -37,6 +39,9 @@ public class Main {
         app.exception(Exception.class, (e, ctx) -> {
             ctx.status(500).result("Server error: " + e.getMessage());
         });
+
+        app.exception(AccountNotFoundException.class, (e, ctx) ->
+        ctx.status(404).result(e.getMessage()));
 
         var service = new DataServiceImpl();
 

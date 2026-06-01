@@ -139,7 +139,10 @@ function App() {
       </button>
        {file && <p>{file.name}</p>}
        </div>
-      <button className='bttn' onClick={() => setShowExportModal(true)}>Export statement</button>
+      <button className='bttn'
+       onClick={() => setShowExportModal(true)} 
+       disabled={transactions.length === 0}
+       >Export statement</button>
       </div>
       <TransactionsTable transactions={transactions} />
       <div className="card">
@@ -170,8 +173,17 @@ function App() {
           
         </div>
        
-        <button className='bttn' onClick={handleCalculate}>Calculate</button>
-        {balance !== null && <p>Balance: {balance}</p>}
+        <button className='bttn' 
+        onClick={handleCalculate}
+        disabled={transactions.length === 0}
+        >Calculate</button>
+        {balance !== null && (
+          <div>
+            {Object.entries(balance).map(([currency, amount]) => (
+              <p key={currency}>Balance ({currency}): {amount.toFixed(2)}</p>
+            ))}
+          </div>
+        )}
       </div>
       {showExportModal && (
         <ExportModal
